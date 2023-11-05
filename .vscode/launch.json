@@ -12,9 +12,9 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "/home/mart/Documents/git/rigs_motorcontroller/.pio/build/esp32doit-devkit-v1/firmware.elf",
+            "executable": "E:/git/MotorController/.pio/build/esp32doit-devkit-v1/firmware.elf",
             "projectEnvName": "esp32doit-devkit-v1",
-            "toolchainBinDir": "/home/mart/.platformio/packages/toolchain-xtensa-esp32@8.4.0+2021r2-patch5/bin",
+            "toolchainBinDir": "C:/Users/Mart/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
                 "type": "PlatformIO",
@@ -25,18 +25,18 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "/home/mart/Documents/git/rigs_motorcontroller/.pio/build/esp32doit-devkit-v1/firmware.elf",
+            "executable": "E:/git/MotorController/.pio/build/esp32doit-devkit-v1/firmware.elf",
             "projectEnvName": "esp32doit-devkit-v1",
-            "toolchainBinDir": "/home/mart/.platformio/packages/toolchain-xtensa-esp32@8.4.0+2021r2-patch5/bin",
+            "toolchainBinDir": "C:/Users/Mart/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "/home/mart/Documents/git/rigs_motorcontroller/.pio/build/esp32doit-devkit-v1/firmware.elf",
+            "executable": "E:/git/MotorController/.pio/build/esp32doit-devkit-v1/firmware.elf",
             "projectEnvName": "esp32doit-devkit-v1",
-            "toolchainBinDir": "/home/mart/.platformio/packages/toolchain-xtensa-esp32@8.4.0+2021r2-patch5/bin",
+            "toolchainBinDir": "C:/Users/Mart/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"
         }

@@ -16,29 +16,33 @@ namespace Config
 
     namespace LeftMotor
     {
-        constexpr int Encoder1 = 26;
-        constexpr int Encoder2 = 25;
+        constexpr int BusNum = 0;
+        constexpr int SDAPin = 27;
+        constexpr int SCLPin = 26;
+        constexpr int DirPin = 23;
         constexpr uint32_t CountsPerRev = General::CountsPerRev;
-        constexpr int Dir = 14;
-        constexpr int Pwm = 27;
+        constexpr int Dir = 4;
+        constexpr int Pwm = 5;
         constexpr bool DirInverted = false;
-        constexpr int Channel = 1;
-        constexpr double Kp = 0.16365535849189533;
-        constexpr double Ki = 23.75620975449702;
+        constexpr int Enable = 15;
+        constexpr double Kp = 0;
+        constexpr double Ki = 0;
         constexpr double Kd = 0;
     }
 
     namespace RightMotor
     {
-        constexpr int Encoder1 = 33;
-        constexpr int Encoder2 = 32;
+        constexpr int BusNum = 1;
+        constexpr int SDAPin = 33;
+        constexpr int SCLPin = 32;
+        constexpr int DirPin = 22;
         constexpr uint32_t CountsPerRev = General::CountsPerRev;
-        constexpr int Dir = 12;
-        constexpr int Pwm = 13;
+        constexpr int Dir = 14;
+        constexpr int Pwm = 25;
         constexpr bool DirInverted = true;
-        constexpr int Channel = 0;
-        constexpr double Kp = 0.16365535849189533;
-        constexpr double Ki = 23.75620975449702;
+        constexpr int Enable = 13;
+        constexpr double Kp = 0;
+        constexpr double Ki = 0;
         constexpr double Kd = 0;
     }
 }

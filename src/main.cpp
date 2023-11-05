@@ -1,7 +1,7 @@
 #include <memory>
 
-#include "Cytron_MotorController.h"
-#include "CWheelEncoder.h"
+#include "BLDC_MotorDriver.h"
+#include "AS5600_Encoder.h"
 #include "CSpeedController.h"
 #include "rigs_config.h"
 #include "CCommunication.h"
@@ -10,10 +10,10 @@
 #include <vector>
 #include <string>
 
-std::unique_ptr<Cytron> leftMotor;
-std::unique_ptr<Cytron> rightMotor;
-std::unique_ptr<CWheelEncoder> leftEncoder;
-std::unique_ptr<CWheelEncoder> rightEncoder;
+std::unique_ptr<CBLDC_MotorDriver> leftMotor;
+std::unique_ptr<CBLDC_MotorDriver> rightMotor;
+std::unique_ptr<CAS5600> leftEncoder;
+std::unique_ptr<CAS5600> rightEncoder;
 std::unique_ptr<CSpeedController> speedController;
 std::unique_ptr<CSerial> serial;
 std::unique_ptr<CCommunication> communication;
@@ -37,18 +37,18 @@ static void SetMotorSpeed(std::vector<void *> args, std::string message)
 
 static void GetEncoderCounts(std::vector<void *> args, std::string message)
 {
-  CWheelEncoder *leftEncoder = (CWheelEncoder *)args[0];
-  CWheelEncoder *rightEncoder = (CWheelEncoder *)args[1];
+  CAS5600 *leftEncoder = (CAS5600 *)args[0];
+  CAS5600 *rightEncoder = (CAS5600 *)args[1];
   CCommunication *communication = (CCommunication *)args[2];
   communication->Send(std::to_string(leftEncoder->GetCount()) + ',' + std::to_string(rightEncoder->GetCount()));
 }
 
 void setup()
 {
-  leftMotor = std::unique_ptr<Cytron>(new Cytron(Config::LeftMotor::Pwm, Config::LeftMotor::Dir, Config::LeftMotor::DirInverted, Config::LeftMotor::Channel));
-  rightMotor = std::unique_ptr<Cytron>(new Cytron(Config::RightMotor::Pwm, Config::RightMotor::Dir, Config::RightMotor::DirInverted, Config::RightMotor::Channel));
-  leftEncoder = std::unique_ptr<CWheelEncoder>(new CWheelEncoder(Config::LeftMotor::Encoder1, Config::LeftMotor::Encoder2));
-  rightEncoder = std::unique_ptr<CWheelEncoder>(new CWheelEncoder(Config::RightMotor::Encoder1, Config::RightMotor::Encoder2));
+  leftMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::LeftMotor::Enable,Config::LeftMotor::Dir,Config::LeftMotor::Pwm, Config::LeftMotor::DirInverted));
+  rightMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::LeftMotor::Enable,Config::LeftMotor::Dir,Config::LeftMotor::Pwm, Config::LeftMotor::DirInverted));
+  leftEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::LeftMotor::BusNum, Config::LeftMotor::SDAPin, Config::LeftMotor::SCLPin, Config::LeftMotor::DirPin));
+  rightEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::RightMotor::BusNum, Config::RightMotor::SDAPin, Config::RightMotor::SCLPin, Config::RightMotor::DirPin));
   speedController = std::unique_ptr<CSpeedController>(new CSpeedController(*leftMotor, *rightMotor, *leftEncoder, *rightEncoder, {Config::LeftMotor::Kp, Config::LeftMotor::Ki, Config::LeftMotor::Kd, Config::LeftMotor::CountsPerRev}, {Config::RightMotor::Kp, Config::RightMotor::Ki, Config::RightMotor::Kd, Config::RightMotor::CountsPerRev}));
   serial = std::unique_ptr<CSerial>(new CSerial(115200));
   communication = std::unique_ptr<CCommunication>(new CCommunication(*serial, '#', ';'));

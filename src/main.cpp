@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 
+#include <Arduino.h>
+
 std::unique_ptr<CBLDC_MotorDriver> leftMotor;
 std::unique_ptr<CBLDC_MotorDriver> rightMotor;
 std::unique_ptr<CAS5600> leftEncoder;
@@ -45,19 +47,34 @@ static void GetEncoderCounts(std::vector<void *> args, std::string message)
 
 void setup()
 {
-  leftMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::LeftMotor::Enable,Config::LeftMotor::Dir,Config::LeftMotor::Pwm, Config::LeftMotor::DirInverted));
-  rightMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::LeftMotor::Enable,Config::LeftMotor::Dir,Config::LeftMotor::Pwm, Config::LeftMotor::DirInverted));
-  leftEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::LeftMotor::BusNum, Config::LeftMotor::SDAPin, Config::LeftMotor::SCLPin, Config::LeftMotor::DirPin));
-  rightEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::RightMotor::BusNum, Config::RightMotor::SDAPin, Config::RightMotor::SCLPin, Config::RightMotor::DirPin));
-  speedController = std::unique_ptr<CSpeedController>(new CSpeedController(*leftMotor, *rightMotor, *leftEncoder, *rightEncoder, {Config::LeftMotor::Kp, Config::LeftMotor::Ki, Config::LeftMotor::Kd, Config::LeftMotor::CountsPerRev}, {Config::RightMotor::Kp, Config::RightMotor::Ki, Config::RightMotor::Kd, Config::RightMotor::CountsPerRev}));
-  serial = std::unique_ptr<CSerial>(new CSerial(115200));
-  communication = std::unique_ptr<CCommunication>(new CCommunication(*serial, '#', ';'));
+  Serial.begin(115200);
+  leftMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::LeftMotor::Enable,Config::LeftMotor::Dir,Config::LeftMotor::Pwm, Config::LeftMotor::DirInverted, Config::LeftMotor::PwmChannel));
+  rightMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::RightMotor::Enable,Config::RightMotor::Dir,Config::RightMotor::Pwm, Config::RightMotor::DirInverted, Config::RightMotor::PwmChannel));
+  // leftEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::LeftMotor::BusNum, Config::LeftMotor::SDAPin, Config::LeftMotor::SCLPin, Config::LeftMotor::DirPin));
+  // rightEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::RightMotor::BusNum, Config::RightMotor::SDAPin, Config::RightMotor::SCLPin, Config::RightMotor::DirPin));
+  // //speedController = std::unique_ptr<CSpeedController>(new CSpeedController(*leftMotor, *rightMotor, *leftEncoder, *rightEncoder, {Config::LeftMotor::Kp, Config::LeftMotor::Ki, Config::LeftMotor::Kd, Config::LeftMotor::CountsPerRev}, {Config::RightMotor::Kp, Config::RightMotor::Ki, Config::RightMotor::Kd, Config::RightMotor::CountsPerRev}));
+  // serial = std::unique_ptr<CSerial>(new CSerial(115200));
+  // communication = std::unique_ptr<CCommunication>(new CCommunication(*serial, '#', ';'));
 
-  communication->AddCommand('m', {std::vector<void *>{speedController.get(), communication.get()}, SetMotorSpeed});
-  communication->AddCommand('e', {std::vector<void *>{leftEncoder.get(), rightEncoder.get(), communication.get()}, GetEncoderCounts});
+  // communication->AddCommand('m', {std::vector<void *>{speedController.get(), communication.get()}, SetMotorSpeed});
+  // communication->AddCommand('e', {std::vector<void *>{leftEncoder.get(), rightEncoder.get(), communication.get()}, GetEncoderCounts});
+  leftMotor->SetDirection(EDirection::Forward);
+  rightMotor->SetDirection(EDirection::Forward);
 }
 
 void loop()
 {
-  communication->Receive();
+  for (int i = 0; i < 255; i++)
+  {
+    leftMotor->SetSpeed(i);
+    rightMotor->SetSpeed(i);
+    delay(10);
+  }
+
+  for (int i = 255; i > 0; i--)
+  {
+    leftMotor->SetSpeed(i);
+    rightMotor->SetSpeed(i);
+    delay(10);
+  }
 }

@@ -13,4 +13,5 @@ private:
     uint8_t mPin;
     TwoWire mWire;
     AS5600 mEncoder;
+    int mCount;
 };

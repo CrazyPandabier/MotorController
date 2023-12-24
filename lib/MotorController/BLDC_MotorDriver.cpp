@@ -2,25 +2,21 @@
 
 #include <Arduino.h>
 
-CBLDC_MotorDriver::CBLDC_MotorDriver(uint8_t EL, uint8_t ZF, uint8_t VR, bool inverted)
-    : mEL(EL), mZF(ZF), mVR(VR), mInverted(inverted)
+CBLDC_MotorDriver::CBLDC_MotorDriver(uint8_t EL, uint8_t ZF, uint8_t VR, bool inverted, uint8_t pwmChannel)
+    : mEL(EL), mZF(ZF), mVR(VR), mInverted(inverted), mPwmChannel(pwmChannel)
 {
     pinMode(EL, OUTPUT);
     pinMode(ZF, OUTPUT);
-    pinMode(VR, OUTPUT);
+    ledcSetup(pwmChannel, 20000, 8);
+    ledcAttachPin(VR, pwmChannel);
 
-    digitalWrite(EL, HIGH);
+    digitalWrite(EL, LOW);
     digitalWrite(ZF, LOW);
-    digitalWrite(VR, LOW);
 }
 
 void CBLDC_MotorDriver::SetSpeed(uint8_t pwm)
 {
-    if (pwm < 0)
-    {
-        pwm = 0;
-    }
-    else if (pwm > 255)
+    if (pwm > 255)
     {
         pwm = 255;
     }
@@ -32,7 +28,7 @@ void CBLDC_MotorDriver::SetSpeed(uint8_t pwm)
     else
     {
         digitalWrite(mEL, HIGH);
-        analogWrite(mVR, pwm);
+        ledcWrite(mPwmChannel, pwm);
     }
 }
 
@@ -40,16 +36,23 @@ void CBLDC_MotorDriver::SetDirection(EDirection direction)
 {
     if (mInverted)
     {
-        direction = (direction == EDirection::Forward) ? EDirection::Backward : EDirection::Forward;
+        if (direction == EDirection::Forward)
+        {
+            direction = EDirection::Backward;
+        }
+        else
+        {
+            direction = EDirection::Forward;
+        }
     }
 
     switch (direction)
     {
     case EDirection::Forward:
-        digitalWrite(mZF, LOW);
+        digitalWrite(mZF, HIGH);
         break;
     case EDirection::Backward:
-        digitalWrite(mZF, HIGH);
+        digitalWrite(mZF, LOW);
         break;
     }
 }

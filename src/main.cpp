@@ -47,34 +47,45 @@ static void GetEncoderCounts(std::vector<void *> args, std::string message)
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial2.begin(115200);
   leftMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::LeftMotor::Enable,Config::LeftMotor::Dir,Config::LeftMotor::Pwm, Config::LeftMotor::DirInverted, Config::LeftMotor::PwmChannel));
   rightMotor = std::unique_ptr<CBLDC_MotorDriver>(new CBLDC_MotorDriver(Config::RightMotor::Enable,Config::RightMotor::Dir,Config::RightMotor::Pwm, Config::RightMotor::DirInverted, Config::RightMotor::PwmChannel));
-  // leftEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::LeftMotor::BusNum, Config::LeftMotor::SDAPin, Config::LeftMotor::SCLPin, Config::LeftMotor::DirPin));
-  // rightEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::RightMotor::BusNum, Config::RightMotor::SDAPin, Config::RightMotor::SCLPin, Config::RightMotor::DirPin));
-  // //speedController = std::unique_ptr<CSpeedController>(new CSpeedController(*leftMotor, *rightMotor, *leftEncoder, *rightEncoder, {Config::LeftMotor::Kp, Config::LeftMotor::Ki, Config::LeftMotor::Kd, Config::LeftMotor::CountsPerRev}, {Config::RightMotor::Kp, Config::RightMotor::Ki, Config::RightMotor::Kd, Config::RightMotor::CountsPerRev}));
-  // serial = std::unique_ptr<CSerial>(new CSerial(115200));
-  // communication = std::unique_ptr<CCommunication>(new CCommunication(*serial, '#', ';'));
+  leftEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::LeftMotor::BusNum, Config::LeftMotor::SDAPin, Config::LeftMotor::SCLPin, Config::LeftMotor::DirPin));
+  rightEncoder = std::unique_ptr<CAS5600>(new CAS5600(Config::RightMotor::BusNum, Config::RightMotor::SDAPin, Config::RightMotor::SCLPin, Config::RightMotor::DirPin));
+  speedController = std::unique_ptr<CSpeedController>(new CSpeedController(*leftMotor, *rightMotor, *leftEncoder, *rightEncoder, {Config::LeftMotor::Kp, Config::LeftMotor::Ki, Config::LeftMotor::Kd, Config::LeftMotor::CountsPerRev}, {Config::RightMotor::Kp, Config::RightMotor::Ki, Config::RightMotor::Kd, Config::RightMotor::CountsPerRev}));
+  serial = std::unique_ptr<CSerial>(new CSerial(115200));
+  communication = std::unique_ptr<CCommunication>(new CCommunication(*serial, '#', ';'));
 
-  // communication->AddCommand('m', {std::vector<void *>{speedController.get(), communication.get()}, SetMotorSpeed});
-  // communication->AddCommand('e', {std::vector<void *>{leftEncoder.get(), rightEncoder.get(), communication.get()}, GetEncoderCounts});
+  communication->AddCommand('m', {std::vector<void *>{speedController.get(), communication.get()}, SetMotorSpeed});
+  communication->AddCommand('e', {std::vector<void *>{leftEncoder.get(), rightEncoder.get(), communication.get()}, GetEncoderCounts});
   leftMotor->SetDirection(EDirection::Forward);
   rightMotor->SetDirection(EDirection::Forward);
+  leftMotor->SetSpeed(255);
+  rightMotor->SetSpeed(255);
 }
+
+unsigned long lastTime = 0;
+EDirection direction = EDirection::Forward;
 
 void loop()
 {
-  for (int i = 0; i < 255; i++)
+  if (millis() - lastTime > 10000)
   {
-    leftMotor->SetSpeed(i);
-    rightMotor->SetSpeed(i);
-    delay(10);
+    if (direction == EDirection::Forward)
+    {
+      direction = EDirection::Backward;
+    }
+    else
+    {
+      direction = EDirection::Forward;
+    }
+
+    leftMotor->SetDirection(direction);
+    rightMotor->SetDirection(direction);
+    lastTime = millis();
   }
 
-  for (int i = 255; i > 0; i--)
-  {
-    leftMotor->SetSpeed(i);
-    rightMotor->SetSpeed(i);
-    delay(10);
-  }
+  Serial2.print(leftEncoder->GetCount());
+  Serial2.print(',');
+  Serial2.println(rightEncoder->GetCount());
 }

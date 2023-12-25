@@ -58,34 +58,9 @@ void setup()
 
   communication->AddCommand('m', {std::vector<void *>{speedController.get(), communication.get()}, SetMotorSpeed});
   communication->AddCommand('e', {std::vector<void *>{leftEncoder.get(), rightEncoder.get(), communication.get()}, GetEncoderCounts});
-  leftMotor->SetDirection(EDirection::Forward);
-  rightMotor->SetDirection(EDirection::Forward);
-  leftMotor->SetSpeed(255);
-  rightMotor->SetSpeed(255);
 }
-
-unsigned long lastTime = 0;
-EDirection direction = EDirection::Forward;
 
 void loop()
 {
-  if (millis() - lastTime > 10000)
-  {
-    if (direction == EDirection::Forward)
-    {
-      direction = EDirection::Backward;
-    }
-    else
-    {
-      direction = EDirection::Forward;
-    }
-
-    leftMotor->SetDirection(direction);
-    rightMotor->SetDirection(direction);
-    lastTime = millis();
-  }
-
-  Serial2.print(leftEncoder->GetCount());
-  Serial2.print(',');
-  Serial2.println(rightEncoder->GetCount());
+  communication->Receive();
 }

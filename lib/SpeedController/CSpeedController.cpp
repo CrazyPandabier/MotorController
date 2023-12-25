@@ -62,7 +62,7 @@ void CSpeedController::PIDTask(void* param)
 
         previousCount = currentCount;
         double time = SAMPLE_TIME / 1000.0;
-        *params->input =((double(deltaCount) * 2*PI)/ double(params->CountsPerRev)) / time;
+        *params->input =((double(deltaCount)/ double(params->CountsPerRev)) * 2*PI) / time;
         
         params->pid->Compute();
         if(*params->output < 0)
